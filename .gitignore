@@ -1,0 +1,13 @@
+/build
+/dist
+/local
+/venv
+/.idea
+/输出目录*
+/转换目录
+**/OutputData/
+
+
+*.7z
+dist.zip
+log.md
