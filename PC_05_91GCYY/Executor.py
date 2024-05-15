@@ -83,8 +83,10 @@ class Executor:
 
     def read_category(self, category):
         res_page = self.session.get(url=f'{URL_HOST}/category/{category}')
-        page_bar_item_list = etree.HTML(res_page.text).xpath('//li[@class="mb15"]/text()')
+        page_bar_item_list = etree.HTML(res_page.text).xpath('//div[contains(@class,"pagebar")]/li/*/text()')
+        print(page_bar_item_list)
         max_page = max([int(page_bar_item) for page_bar_item in page_bar_item_list if re.match(r'\d+', page_bar_item)])
+        print(max_page)
         for page in range(1, max_page):
             logger.info(f'读取第 {page} 页 Start')
             page_video_list = self.read_page(category, page)
@@ -92,7 +94,7 @@ class Executor:
 
     def read_page(self, category, page):
         page_video_list = []
-        res_page = self.session.get(url=f'{URL_HOST}/category/{category}', params={page: page})
+        res_page = self.session.get(url=f'{URL_HOST}/category/{category}', params={'page': page})
         if res_page.status_code != 200:
             return
         res_page_etree = etree.HTML(res_page.text)  # 初始化生成一个XPath解析对象
