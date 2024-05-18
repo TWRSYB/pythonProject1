@@ -87,21 +87,6 @@ for vo_m3u8 in list_vo_m3u8:
     print(vo_m3u8_match_mp4)
     list_vo_m3u8_match_mp4.append(vo_m3u8_match_mp4)
 
-#     m3u8_match_mp4 = {
-#         'm3u8_ts_is_max': max(mp4_ts_list) == m3u8_ts,
-#         'm3u8_ts': m3u8_ts,
-#         'max_mp4_ts_list': max(mp4_ts_list),
-#         'mp4_ts_list': mp4_ts_list,
-#         'm3u8': m3u8,
-#         'video_name': video_name,
-#     }
-#     print(m3u8_match_mp4)
-#
-#     m3u8_match_mp4_list.append(m3u8_match_mp4)
-#
-# print(f'匹配到 {len(matched_mp4_list)} 个mp4文件: {matched_mp4_list}')
-
-#
 if len(list_vo_m3u8_match_mp4) > 0:
     dir_target = input(f'输入要剪切的目标目录:')
     if not os.path.isdir(dir_target):
