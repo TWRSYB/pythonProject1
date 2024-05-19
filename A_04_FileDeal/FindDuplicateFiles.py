@@ -55,7 +55,7 @@ def find_duplicate_files(directory):
 
 
 # 使用示例
-directory = r'D:\34.Temp\UCM3U8ToMp4\总丢失58'  # 替换为你的目录路径
+directory = r'D:\34.Temp\UCM3U8ToMp4\总丢失58-1'  # 替换为你的目录路径
 duplicates = find_duplicate_files(directory)
 # for dup_group in duplicates:
 #     print(f"Duplicate files found with the same hash:")
