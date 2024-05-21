@@ -9,5 +9,6 @@
 
 
 *.7z
+*.zip
 dist.zip
 log.md

@@ -5,7 +5,7 @@ from typing import List, Tuple
 import requests
 from requests import Session
 
-from A_03_Common.ComLog import logger
+from PC_00_Common.LogUtil.LogUtil import com_log
 
 
 class SavePicUtil:
@@ -17,11 +17,11 @@ class SavePicUtil:
             self.session.mount('https://', requests.adapters.HTTPAdapter(pool_connections=15, pool_maxsize=100))
         self.test_times = test_times
 
-    def save_pic(self, url, save_dir, save_name, msg='', is_async=False, log=logger):
+    def save_pic(self, url, save_dir, save_name, msg='', is_async=False, log=com_log):
         places: List[Tuple[str, str]] = [(save_dir, save_name)]
         self.save_pic_multi_places(url, places, msg, is_async, log)
 
-    def save_pic_multi_places(self, url, places: List[Tuple[str, str]], msg='', is_async=False, log=logger):
+    def save_pic_multi_places(self, url, places: List[Tuple[str, str]], msg='', is_async=False, log=com_log):
         if is_async:
             threading.Thread(target=self.__get_then_save_pic, args=(url, places, msg, log)).start()
         else:
@@ -29,19 +29,23 @@ class SavePicUtil:
 
     def __get_then_save_pic(self, url: str, places, msg, log):
 
+        invalid_url_list = []
+        if url in invalid_url_list:
+            log.warning(f"图片连接无效: url: {url}, msg: {msg}")
+            return
+
         res = self.try_get_pic_times(url=url, msg=msg, log=log)
 
         # 图片获取失败, 尝试别的一些办法
-        # if not res:
-        #
-        #     # 尝试替换https为http
-        #     if url.startswith('https:'):
-        #         test_url = url.replace('https:', 'http:')
-        #         log.error(f"图片请求失败, 尝试https-->http重试 url: {url}"
-        #                   f"\n\ttest_url: {test_url}")
-        #         res = self.try_get_pic_times(url=test_url, msg=msg, log=log)
-        #         if res:
-        #             log.error(f"图片使用http请求成功: test_url: {test_url}")
+        if not res:
+            # 尝试替换https为http
+            if url.startswith('https:'):
+                test_url = url.replace('https:', 'http:')
+                log.error(f"图片请求失败, 尝试https-->http重试 url: {url}"
+                          f"\n\ttest_url: {test_url}")
+                res = self.try_get_pic_times(url=test_url, msg=msg, log=log)
+                if res:
+                    log.error(f"图片使用http请求成功: test_url: {test_url}")
 
         if res:
             try:
@@ -57,7 +61,7 @@ class SavePicUtil:
                           f"\n\t异常: {e}"
                           f"\n\turl:{url}")
 
-    def try_get_pic_times(self, url, params=None, msg="", log=logger):
+    def try_get_pic_times(self, url, params=None, msg="", log=com_log):
         for i in range(self.test_times):
             res = None
             try:

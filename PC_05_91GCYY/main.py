@@ -1,7 +1,9 @@
+from PC_05_91GCYY.Config import check_dir
+check_dir()
 from PC_05_91GCYY.Executor import Executor
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     executor = Executor()
     executor.start()
 
