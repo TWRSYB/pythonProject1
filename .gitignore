@@ -5,7 +5,7 @@
 /.idea
 /输出目录*
 /转换目录
-**/OutputData/
+**/OutputData*/
 
 
 *.7z

@@ -124,8 +124,8 @@ class Executor:
             process_log.process1(msg=f'获取分类数据 Start: {category}')
             self.read_category(category[1])
             process_log.process1(msg=f'获取分类数据 End: {category}')
-        self.save_data()
-        self.get_task_resource()
+        # self.save_data()
+        # self.get_task_resource()
 
     def read_category(self, category):
         res_page = req_util.try_get_req_times(url=f'{URL_HOST}/category/{category}')
