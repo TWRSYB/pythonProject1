@@ -11,7 +11,7 @@ def find_duplicates(lst):
             seen.add(item)
     return list(duplicates)
 
-json1 = r'D:\15.Development Projects\06.pachon\pythonProject1\PC_05_91GCYY\OutputData\JSON_ALL.json'
+json1 = r'D:\15.Development Projects\06.pachon\pythonProject1\PC_05_91GCYY\OutputData03\JSON_ALL.json'
 json2 = r'D:\15.Development Projects\06.pachon\pythonProject1\PC_05_91GCYY\OutputData01\JSON_ALL.json'
 json3 = r'D:\15.Development Projects\06.pachon\pythonProject1\PC_05_91GCYY\OutputData02\JSON_ALL.json'
 
