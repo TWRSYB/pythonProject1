@@ -1,6 +1,8 @@
 import logging
 
+from PC_00_Common.LogUtil import LogUtil
 from PC_00_Common.Config.Config import DIR_LOG
+from PC_00_Common.Config import StartPoint
 
 LOG_PATH_GLOBAL = f'{DIR_LOG}/Global_log.log'
 
@@ -27,6 +29,35 @@ LOG_PROCESS_3 = 0
 LOG_PROCESS_4 = 0
 
 
+def set_process(level: int, order: int):
+    if level == 1:
+        LogUtil.LOG_PROCESS_1 = order
+        LogUtil.LOG_PROCESS_2 = 0
+        LogUtil.LOG_PROCESS_3 = 0
+        LogUtil.LOG_PROCESS_4 = 0
+        if order < StartPoint.START_POINT_1:
+            StartPoint.START_POINT_1 = 0
+            return True
+    elif level == 2:
+        LogUtil.LOG_PROCESS_2 = order
+        LogUtil.LOG_PROCESS_3 = 0
+        LogUtil.LOG_PROCESS_4 = 0
+        if order < StartPoint.START_POINT_2:
+            StartPoint.START_POINT_2 = 0
+            return True
+    elif level == 3:
+        LogUtil.LOG_PROCESS_3 = order
+        LogUtil.LOG_PROCESS_4 = 0
+        if order < StartPoint.START_POINT_3:
+            StartPoint.START_POINT_3 = 0
+            return True
+    elif level == 4:
+        LogUtil.LOG_PROCESS_4 = order
+        if order < StartPoint.START_POINT_4:
+            StartPoint.START_POINT_4 = 0
+            return True
+
+
 # 自定义日志参数赋值
 class _FormatterWithSelfAttr(logging.Formatter):
     def format(self, record):
@@ -37,11 +68,9 @@ class _FormatterWithSelfAttr(logging.Formatter):
 formatter_with_process = _FormatterWithSelfAttr(fmt="%(asctime)s - %(process)s - %(levelname)s - %(message)s")
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
-
 # 全局日志配置
 logging.basicConfig(format="%(asctime)s - %(process)s - %(levelname)s - %(message)s", level=logging.DEBUG)
 logging.Formatter = _FormatterWithSelfAttr
-
 
 # 全局日志对象设置
 logger = logging.getLogger()
@@ -181,6 +210,8 @@ class ProcessLog:
     logger_process_4.addHandler(handler_4)
     logger_process_5.addHandler(handler_5)
 
+    list_logger = [logger_process_1, logger_process_2, logger_process_3, logger_process_4, logger_process_5]
+
     def process1(self, msg):
         self.logger_process_1.info(msg)
 
@@ -195,6 +226,23 @@ class ProcessLog:
 
     def process5(self, msg):
         self.logger_process_5.info(msg)
+
+    def process_start(self, level: int, msg, order=None, obj=None):
+        msg = f'{msg} Start ↓↓↓↓↓'
+        self.process(level, msg, order, obj)
+
+    def process_end(self, level: int, msg, order=None, obj=None):
+        msg = f'{msg} End ↑↑↑↑↑'
+        self.process(level, msg, order, obj)
+
+    def process_skip(self, level: int, msg, order=None, obj=None):
+        msg = f'跳过 {msg}'
+        self.process(level, msg, order, obj)
+
+    def process(self, level: int, msg, order=None, obj=None):
+        msg = f'{msg} 第 {order} 个' if order else msg
+        msg = f'{msg} obj: {obj}' if obj else msg
+        self.list_logger[level - 1].info(msg)
 
 
 class AsyncLog:

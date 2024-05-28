@@ -1,5 +1,4 @@
-from PC_05_91GCYY.Config import check_dir
-check_dir()
+import PC_05_91GCYY.Config
 from PC_05_91GCYY.Executor import Executor
 
 
