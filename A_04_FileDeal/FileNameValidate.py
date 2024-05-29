@@ -12,11 +12,12 @@ list_spc = [
     ('|', '_SPC09_'),
     ('/', '_SPC10_'),
     ('\\', '_SPC11_'),
+    ('\r', '_SPC12_'),
 ]
 
 def validate(file_name_str):
     print(file_name_str)
-    r_str = r"[\/\\\:\*\?\"\<\>\|\n\t]"
+    r_str = r"[\/\\\:\*\?\"\<\>\|\n\t\r]"
     file_name_str = re.sub(r_str, "_SPC_", file_name_str)
     print(file_name_str)
     return file_name_str
@@ -24,7 +25,7 @@ def validate(file_name_str):
 
 def correct_name(file_name_str: str, can_restored=False):
     if not can_restored:
-        r_str = r"[\/\\\:\*\?\"\<\>\|\n\t]"
+        r_str = r"[\/\\\:\*\?\"\<\>\|\n\t\r]"
         file_name_str = re.sub(r_str, '', file_name_str)
         return file_name_str
     else:

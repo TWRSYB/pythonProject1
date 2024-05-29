@@ -36,26 +36,26 @@ def set_process(level: int, order: int):
         LogUtil.LOG_PROCESS_3 = 0
         LogUtil.LOG_PROCESS_4 = 0
         if order < StartPoint.START_POINT_1:
-            StartPoint.START_POINT_1 = 0
             return True
+        StartPoint.START_POINT_1 = 0
     elif level == 2:
         LogUtil.LOG_PROCESS_2 = order
         LogUtil.LOG_PROCESS_3 = 0
         LogUtil.LOG_PROCESS_4 = 0
         if order < StartPoint.START_POINT_2:
-            StartPoint.START_POINT_2 = 0
             return True
+        StartPoint.START_POINT_2 = 0
     elif level == 3:
         LogUtil.LOG_PROCESS_3 = order
         LogUtil.LOG_PROCESS_4 = 0
         if order < StartPoint.START_POINT_3:
-            StartPoint.START_POINT_3 = 0
             return True
+        StartPoint.START_POINT_3 = 0
     elif level == 4:
         LogUtil.LOG_PROCESS_4 = order
         if order < StartPoint.START_POINT_4:
-            StartPoint.START_POINT_4 = 0
             return True
+        StartPoint.START_POINT_4 = 0
 
 
 # 自定义日志参数赋值

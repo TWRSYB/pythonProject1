@@ -51,7 +51,7 @@ class Task:
         return json.dumps(self.__dict__, ensure_ascii=False)
 
     def get_name(self):
-        return correct_name(f'{self.serno}_-_{self.title}_-_{self.vip_type}_-_{self.m3u8_url.split(".m3u8?val=")[1]}')
+        return correct_name(f'{self.serno}_-_{self.title}_-_{self.vip_type}_-_{self.m3u8_url.split(".m3u8?val=")[1]}', can_restored=True)
 
 
 class Category:
@@ -106,13 +106,6 @@ class Executor:
             LogUtil.process_log.process_start(process_level, '获取影片')
             self.get_task()
             LogUtil.process_log.process_end(process_level, '获取影片')
-        # 为.m3u8添加key
-        if LogUtil.set_process(process_level, 3):
-            LogUtil.process_log.process_skip(process_level, '为.m3u8添加key')
-        else:
-            LogUtil.process_log.process_start(process_level, '为.m3u8添加key')
-            self.add_key_uri_for_m3u8()
-            LogUtil.process_log.process_end(process_level, '为.m3u8添加key')
 
     def get_category(self, process_level=2):
         res_home_page = req_util.try_get_req_times(url=f'{URL_HOST}')
@@ -169,31 +162,48 @@ class Executor:
             category.list_sub_category_code = None
 
     def get_task(self):
-        for index, category in enumerate(self.list_category):
-            if LogUtil.set_process(2, index + 1):
-                LogUtil.process_log.process_skip(2, f"获取分类数据", order=index + 1, obj=category)
-                continue
-            LogUtil.process_log.process_start(2, f"获取分类数据", order=index + 1, obj=category)
-            self.read_category(category.category_code, category.page_count)
-            LogUtil.process_log.process_end(2, f"获取分类数据", order=index + 1, obj=category)
+        if len(self.list_category) > 0:
+            for index, category in enumerate(self.list_category):
+                if LogUtil.set_process(2, index + 1):
+                    LogUtil.process_log.process_skip(2, f"获取本次分类数据", order=index + 1, obj=category)
+                    continue
+                LogUtil.process_log.process_start(2, f"获取本次分类数据", order=index + 1, obj=category)
+                self.read_category(category.category_code, category.page_count)
+                LogUtil.process_log.process_end(2, f"获取本次分类数据", order=index + 1, obj=category)
+        else:
+            for index, category in enumerate(self.list_category_json_all):
+                if LogUtil.set_process(2, index + 1):
+                    LogUtil.process_log.process_skip(2, f"获取所有分类数据", order=index + 1, obj=category)
+                    continue
+                LogUtil.process_log.process_start(2, f"获取所有分类数据", order=index + 1, obj=category)
+                list_task_category = self.read_category(category['category_code'], category['page_count'])
+                LogUtil.process_log.process_end(2, f"获取所有分类数据", order=index + 1, obj=list_task_category)
 
-        # self.save_data()
-        # self.get_task_resource()
-
-    def read_category(self, category_code, page_count, category: Category = None):
+    def read_category(self, category_code, page_count: int, category: Category = None):
+        list_task_category = []
         if category:
             category_code = category.category_code
             page_count = category.page_count
-        for i in range(0, page_count):
-            page = i + 1
-            if LogUtil.set_process(3, page):
-                LogUtil.process_log.process_skip(3, f"读取页", order=page)
-                continue
-            LogUtil.process_log.process_start(3, f"读取页", order=page)
-            list_page_task = self.read_page(category_code, page)
-            LogUtil.process_log.process_end(3, f"读取页", order=page, obj=list_page_task)
+        if page_count > 0:
+            dir_save = os.path.join(DIR_OUTPUT, category_code)
+            dir_m3u8 = os.path.join(dir_save, 'M3U8')
+            dir_img = os.path.join(dir_save, 'IMG')
+            os.makedirs(dir_save, exist_ok=True)
+            os.makedirs(dir_m3u8, exist_ok=True)
+            os.makedirs(dir_img, exist_ok=True)
+            for i in range(0, page_count):
+                page = i + 1
+                if LogUtil.set_process(3, page):
+                    LogUtil.process_log.process_skip(3, f"读取页", order=page)
+                    continue
+                LogUtil.process_log.process_start(3, f"读取页", order=page)
+                list_page_task = self.read_page(category_code, page, dir_save, dir_m3u8, dir_img)
+                list_task_category.extend(list_page_task)
+                LogUtil.process_log.process_end(3, f"读取页", order=page, obj=list_page_task)
+            self.add_key_uri_for_m3u8(dir_m3u8=dir_m3u8)
+        return list_task_category
 
-    def read_page(self, category_code, page):
+    def read_page(self, category_code, page, dir_save, dir_m3u8, dir_img):
         list_page_task = []
         res_page = req_util.try_get_req_times(url=f'{URL_HOST}/category/{category_code}', params={'page': page})
         if res_page.status_code != 200:
@@ -229,33 +239,27 @@ class Executor:
                         f'{page}_{order}')
             LogUtil.process_log.process_end(4, f"获取影片详情", order, obj=category_code)
             list_page_task.append(task)
-        dir_output = os.path.join(DIR_OUTPUT, category_code)
-        os.makedirs(dir_output, exist_ok=True)
         self.save_data(list_page_task, list_json_all=self.list_json_all,
-                       dir_output=dir_output,
+                       dir_output=dir_save,
                        json_current=FILE_JSON_CURRENT, json_all=FILE_JSON_ALL,
                        excel_current=FILE_EXCEL_CURRENT, excel_all=FILE_EXCEL_ALL)
-        self.get_task_resource(list_page_task, dir_save=dir_output)
+        self.get_task_resource(list_page_task, dir_m3u8, dir_img)
         self.list_task += list_page_task
         return list_page_task
 
-    def get_task_resource(self, task_list, dir_save):
+    def get_task_resource(self, task_list, dir_m3u8, dir_img):
         for task in task_list:
-            self.get_task_m3u8(task, dir_save)
-            self.get_task_img(task, dir_save)
+            self.get_task_m3u8(task, dir_m3u8)
+            self.get_task_img(task, dir_img)
 
-    def get_task_m3u8(self, task: Task, dir_save):
+    def get_task_m3u8(self, task: Task, dir_m3u8):
         res_get_m3u8 = req_util.try_get_req_times(f'{URL_HOST}{task.m3u8_url}', msg=f'获取.m3u8文件')
         if res_get_m3u8.status_code != 200:
             return
-        dir_m3u8 = os.path.join(dir_save, 'M3U8')
-        os.makedirs(dir_m3u8, exist_ok=True)
         with open(os.path.join(dir_m3u8, f'{task.get_name()}.m3u8'), 'wb') as m3u8_file:
             m3u8_file.write(res_get_m3u8.content)
 
-    def get_task_img(self, task: Task, dir_save):
-        dir_img = os.path.join(dir_save, 'IMG')
-        os.makedirs(dir_img, exist_ok=True)
+    def get_task_img(self, task: Task, dir_img):
         save_pic_util.save_pic(task.img_src, dir_img, task.get_name())
 
     # 保存到 Excel 和 Json 中
@@ -312,8 +316,8 @@ class Executor:
         LogUtil.process_log.process(process_level, f'备份数据成功', obj=backup_folder_name)
         # 备份数据 ↑↑↑
 
-    def add_key_uri_for_m3u8(self):
-        for index, file_m3u8 in enumerate(Path(DIR_M3U8).glob('*.m3u8')):
+    def add_key_uri_for_m3u8(self, dir_m3u8):
+        for index, file_m3u8 in enumerate(Path(dir_m3u8).glob('*.m3u8')):
             LogUtil.set_process(2, index + 1)
             LogUtil.process_log.process_start(2, msg='为.m3u8添加key_uri', order=index + 1)
             with file_m3u8.open('r') as file:
@@ -322,6 +326,8 @@ class Executor:
             replaced_content = re.sub(r'#EXT-X-KEY:METHOD=AES-128,URI=".+"',
                                       f'#EXT-X-KEY:METHOD=AES-128,URI="{URL_HOST}/sec"', content)
             # 另存为新文件
-            with open(os.path.join(Config.DIR_M3U8_ADD_KEYURI, file_m3u8.name), 'w', encoding='utf-8') as new_file:
+            dir_m3u8_add_key_uri = f'{dir_m3u8}_ADD_KEY_URI'
+            os.makedirs(dir_m3u8_add_key_uri, exist_ok=True)
+            with open(os.path.join(dir_m3u8_add_key_uri, file_m3u8.name), 'w', encoding='utf-8') as new_file:
                 new_file.write(replaced_content)
             LogUtil.process_log.process_end(2, msg='为.m3u8添加key_uri', order=index + 1)
