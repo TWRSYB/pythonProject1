@@ -56,29 +56,33 @@ def get_task_m3u8(task: Task, dir_m3u8):
             m3u8_file.write(res_get_m3u8_ca49e0.content)
 
 
-def save_data(list_vo, list_json_all: list, dir_output, json_current, json_all, excel_current, excel_all,
+def save_data(list_vo, list_json_all: list,
+              dir_output, path_file_json_current, path_file_json_all, path_file_excel_current, path_file_excel_all,
               process_level=4):
     # 保存 Json 文件 ↓↓↓
     # 输出本次 Json 文件 ↓↓↓
-    with open(json_current, 'w', encoding='utf-8') as f:
+    with open(path_file_json_current, 'w', encoding='utf-8') as f:
         json.dump([task.__dict__ for task in list_vo], f, ensure_ascii=False, indent=4)
-    LogUtil.process_log.process(process_level, f'输出本次Json成功', obj=json_current)
+    LogUtil.process_log.process(process_level, f'输出本次Json成功', obj=path_file_json_current)
     # 输出本次 Json 文件 ↑↑↑
 
     # 将本次数据合并到现有 Json 中 ↓↓↓
-    existing_serialized = set()  # 创建一个空集合，用于存放已存在数据的序列化字符串
-    for item in list_json_all:  # 将现有数据的每个字典序列化为字符串，并加入到集合中
-        serialized_item = json.dumps(item, sort_keys=True)
-        existing_serialized.add(serialized_item)
-    unique_new_json_list = []
-    for item in [task.__dict__ for task in list_vo]:  # 遍历新数据，仅保留不在已存在数据中的字典
-        serialized_item = json.dumps(item, sort_keys=True)
-        if serialized_item not in existing_serialized:
-            unique_new_json_list.append(item)
-    list_json_all.extend(unique_new_json_list)  # 将新数据追加到现有数据中
-    with open(json_all, "w", encoding='utf-8') as f:  # 将合并后的数据写回JSON文件
+    # existing_serialized = set()  # 创建一个空集合，用于存放已存在数据的序列化字符串
+    # for item in list_json_all:  # 将现有数据的每个字典序列化为字符串，并加入到集合中
+    #     serialized_item = json.dumps(item, sort_keys=True)
+    #     existing_serialized.add(serialized_item)
+    # unique_new_json_list = []
+    # for item in [task.__dict__ for task in list_vo]:  # 遍历新数据，仅保留不在已存在数据中的字典
+    #     serialized_item = json.dumps(item, sort_keys=True)
+    #     if serialized_item not in existing_serialized:
+    #         unique_new_json_list.append(item)
+    # list_json_all.extend(unique_new_json_list)  # 将新数据追加到现有数据中
+    for vo in list_vo:
+        if not vo.in_dict_list(list_json_all):
+            list_json_all.append(vo.__dict__)
+    with open(path_file_json_all, "w", encoding='utf-8') as f:  # 将合并后的数据写回JSON文件
         json.dump(list_json_all, f, ensure_ascii=False, indent=4)  # indent 参数可选，用于美化输出（增加缩进）
-    LogUtil.process_log.process(process_level, f'输出所有Json成功', obj=json_all)
+    LogUtil.process_log.process(process_level, f'输出所有Json成功', obj=path_file_json_all)
     # 将本次数据合并到现有 Json 中 ↑↑↑
     # 保存 Json 文件 ↑↑↑
 
@@ -86,26 +90,26 @@ def save_data(list_vo, list_json_all: list, dir_output, json_current, json_all, 
     # 输出本次 Excel 文件 ↓↓↓
     df = pandas.DataFrame(([task.__dict__ for task in list_vo])).astype(
         str)  # 将列表转换为 DataFrame , 格式为 str , 避免 Excel 以数字和科学计数法显示
-    df.to_excel(excel_current, index=False)  # 将DataFrame保存到Excel文件, index=False表示不保存行索引到Excel文件
-    format_excel_text(excel_current)
-    LogUtil.process_log.process(process_level, f'输出本次Excel成功', obj=excel_current)
+    df.to_excel(path_file_excel_current, index=False)  # 将DataFrame保存到Excel文件, index=False表示不保存行索引到Excel文件
+    format_excel_text(path_file_excel_current)
+    LogUtil.process_log.process(process_level, f'输出本次Excel成功', obj=path_file_excel_current)
     # 输出本次 Excel 文件 ↑↑↑
 
     # 输出所有 Excel 文件 ↓↓↓
     df = pandas.DataFrame(list_json_all).astype(str)
-    df.to_excel(excel_all, index=False)  # 将DataFrame保存到Excel文件, index=False表示不保存行索引到Excel文件
-    format_excel_text(excel_all)
-    LogUtil.process_log.process(process_level, f'输出所有Excel成功', obj=excel_all)
+    df.to_excel(path_file_excel_all, index=False)  # 将DataFrame保存到Excel文件, index=False表示不保存行索引到Excel文件
+    format_excel_text(path_file_excel_all)
+    LogUtil.process_log.process(process_level, f'输出所有Excel成功', obj=path_file_excel_all)
     # 输出所有 Excel 文件 ↑↑↑
     # 保存 Excel 文件 ↑↑↑
 
     # 备份数据 ↓↓↓
     backup_folder_name = os.path.join(dir_output, f'Backup_{datetime.now().strftime("%Y-%m-%d_%H%M%S")}')
     os.makedirs(backup_folder_name)
-    shutil.copy2(json_current, backup_folder_name)
-    shutil.copy2(json_all, backup_folder_name)
-    shutil.copy2(excel_current, backup_folder_name)
-    shutil.copy2(excel_all, backup_folder_name)
+    shutil.copy2(path_file_json_current, backup_folder_name)
+    shutil.copy2(path_file_json_all, backup_folder_name)
+    shutil.copy2(path_file_excel_current, backup_folder_name)
+    shutil.copy2(path_file_excel_all, backup_folder_name)
     LogUtil.process_log.process(process_level, f'备份数据成功', obj=backup_folder_name)
     # 备份数据 ↑↑↑
 
@@ -126,10 +130,10 @@ def get_task_resource(task_list, dir_m3u8, dir_img):
         get_task_img(task, dir_img)
 
 
-def add_key_uri_for_m3u8(dir_m3u8, level: int):
+def add_key_uri_for_m3u8(dir_m3u8, process_level: int):
     for index, file_m3u8 in enumerate(Path(dir_m3u8).glob('*.m3u8')):
-        LogUtil.set_process(level, index + 1)
-        LogUtil.process_log.process_start(level, msg='为.m3u8添加key_uri', order=index + 1)
+        LogUtil.set_process(process_level, index + 1)
+        LogUtil.process_log.process_start(process_level, msg='为.m3u8添加key_uri', order=index + 1)
         with file_m3u8.open('r') as file:
             content = file.read()
         # 使用正则表达式替换文本
@@ -140,7 +144,7 @@ def add_key_uri_for_m3u8(dir_m3u8, level: int):
         os.makedirs(dir_m3u8_add_key_uri, exist_ok=True)
         with open(os.path.join(dir_m3u8_add_key_uri, file_m3u8.name), 'w', encoding='utf-8') as new_file:
             new_file.write(replaced_content)
-        LogUtil.process_log.process_end(level, msg='为.m3u8添加key_uri', order=index + 1)
+        LogUtil.process_log.process_end(process_level, msg='为.m3u8添加key_uri', order=index + 1)
 
 
 class Executor:
@@ -204,8 +208,8 @@ class Executor:
             self.get_sub_category(category)
             LogUtil.process_log.process_end(process_level, msg='获取首页分类', order=index + 1, obj=category)
         save_data(list_vo=self.list_category, list_json_all=self.list_category_json_all, dir_output=DIR_CATEGORY,
-                  json_current=FILE_JSON_CURRENT_CATEGORY, json_all=FILE_JSON_ALL_CATEGORY,
-                  excel_current=FILE_EXCEL_CURRENT_CATEGORY, excel_all=FILE_EXCEL_ALL_CATEGORY,
+                  path_file_json_current=FILE_JSON_CURRENT_CATEGORY, path_file_json_all=FILE_JSON_ALL_CATEGORY,
+                  path_file_excel_current=FILE_EXCEL_CURRENT_CATEGORY, path_file_excel_all=FILE_EXCEL_ALL_CATEGORY,
                   process_level=process_level + 1)
 
     def get_sub_category(self, category):
@@ -320,8 +324,8 @@ class Executor:
     def save_task(self, list_task, dir_save, dir_img, dir_m3u8):
         save_data(list_task, list_json_all=self.list_json_all,
                   dir_output=dir_save,
-                  json_current=FILE_JSON_CURRENT, json_all=FILE_JSON_ALL,
-                  excel_current=FILE_EXCEL_CURRENT, excel_all=FILE_EXCEL_ALL)
+                  path_file_json_current=FILE_JSON_CURRENT, path_file_json_all=FILE_JSON_ALL,
+                  path_file_excel_current=FILE_EXCEL_CURRENT, path_file_excel_all=FILE_EXCEL_ALL)
         get_task_resource(list_task, dir_m3u8, dir_img)
 
     # 通过serno获取影片
@@ -333,7 +337,7 @@ class Executor:
             href = f"/vid/{serno}.html"
             res_video_page = req_util.try_get_req_times(f'{URL_HOST}{href}')
             if not res_video_page:
-                LogUtil.process_log.process(process_level, msg='分类没有重复, 无需补全')
+                LogUtil.process_log.process(process_level, msg='打开影片页面失败', obj=serno, level=LogUtil.Level.ERROR)
                 continue
             res_video_page_etree = etree.HTML(res_video_page.text)
             title = xpath_util.get_unique(res_video_page_etree, xpath='//div/h1[contains(@class, "mb10")]/text()',
@@ -349,6 +353,7 @@ class Executor:
                         vip_type=vip_type, play_times=play_times, m3u8_url=m3u8_url,
                         page_order=page_order)
             list_task.append(task)
+        print(list_task)
         self.save_task(list_task, dir_save, dir_img, dir_m3u8)
         return list_task
 

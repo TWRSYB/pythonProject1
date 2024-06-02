@@ -73,20 +73,29 @@ class Checker:
         LogUtil.set_process(process_level, 2)
         LogUtil.process_log.process_start(process_level, msg='第一次检查分类列表')
         list_check_result = self.check_category_list(list_category, process_level + 1)
+        list_check_result_duplicate = [check_result for check_result in list_check_result if check_result.is_check and not check_result.is_no_duplicate]
+        LogUtil.process_log.process_end(process_level, msg=f'第一次检查, 因为重复而缺失的检查结果有 {len(list_check_result_duplicate)} 个: {list_check_result_duplicate}')
         LogUtil.process_log.process_end(process_level, msg='第一次检查分类列表')
 
         LogUtil.set_process(process_level, 3)
-        LogUtil.process_log.process_start(process_level, msg='补全数据')
-        self.complete_data(list_check_result, process_level + 1)
-        LogUtil.process_log.process_end(process_level, msg='补全数据')
-
-        LogUtil.set_process(process_level, 4)
-        LogUtil.process_log.process_start(process_level, msg='第2次检查分类列表')
-        list_check_result = self.check_category_list(list_category, process_level + 1)
-        LogUtil.process_log.process_end(process_level, msg='第2次检查分类列表')
+        if len(list_check_result_duplicate) > 0:
+            LogUtil.process_log.process_start(process_level, msg='有需要补全的数据')
+            LogUtil.process_log.process_start(process_level, msg='补全数据')
+            self.complete_data(list_check_result_duplicate, process_level + 1)
+            LogUtil.process_log.process_end(process_level, msg='补全数据')
+            # LogUtil.set_process(process_level, 4)
+            # LogUtil.process_log.process_start(process_level, msg='第2次检查分类列表')
+            # list_check_result = self.check_category_list(list_category, process_level + 1)
+            # list_check_result_duplicate = [check_result for check_result in list_check_result if
+            #                                check_result.is_check and not check_result.is_no_duplicate]
+            # LogUtil.process_log.process_end(process_level,
+            #                                 msg=f'第2次检查, 因为重复而缺失的检查结果有 {len(list_check_result_duplicate)} 个: {list_check_result_duplicate}')
+            # LogUtil.process_log.process_end(process_level, msg='第2次检查分类列表')
+        else:
+            LogUtil.process_log.process_start(process_level, msg='没有需要补全的数据')
 
         # 检查不同分类之间是否有重复
-        LogUtil.set_process(process_level, 5)
+        LogUtil.set_process(process_level, 4)
         count_fk = 0
         set_merge = set()
         for category_code, set_video_category_serno in self.group_dict_serno.items():
@@ -122,9 +131,9 @@ class Checker:
                                                     msg=f'分类 {check_result.category} 缺失 {check_result.count_diff} 个, '
                                                         f'补全 {len(list_task)} 个, 补全列表: {list_task}')
                 else:
-                    LogUtil.process_log.process(process_level, msg='分类没有重复, 无需补全')
+                    LogUtil.process_log.process(process_level, msg='分类没有重复, 无需补全', obj=check_result)
             else:
-                LogUtil.process_log.process(process_level, msg='分类没有数据, 无需补全')
+                LogUtil.process_log.process(process_level, msg='分类没有数据, 无需补全', obj=check_result)
             LogUtil.process_log.process_end(process_level, msg='补全分类', order=order, obj=check_result)
 
     def check_category_list(self, list_category, process_level):

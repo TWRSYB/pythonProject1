@@ -14,3 +14,8 @@ class Category(ComVo):
 
     def get_name(self):
         return f'{self.category_code}_-_{self.category_name}_-_{self.super_category_code}'
+
+    def in_dict_list(self, list_category_dict):
+        if not self.category_code in [category_dict.get('category_code') for category_dict in list_category_dict]:
+            return False
+        return True
