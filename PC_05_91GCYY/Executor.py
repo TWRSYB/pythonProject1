@@ -279,6 +279,9 @@ class Executor:
                 list_task_category.extend(list_page_task)
                 LogUtil.process_log.process_end(process_level, f"读取页", order=page, obj=list_page_task)
             add_key_uri_for_m3u8(dir_m3u8=dir_m3u8, process_level=process_level + 1)
+            dir_m3u8_ca49e0 = f'{dir_m3u8}_ca49e0'
+            if os.path.isdir(dir_m3u8_ca49e0):
+                add_key_uri_for_m3u8(dir_m3u8=dir_m3u8_ca49e0, process_level=process_level + 1)
         return list_task_category
 
     def read_page(self, category_code, page, process_level: int = 4):
