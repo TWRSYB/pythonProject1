@@ -9,7 +9,8 @@ def take_off_shell_if_folder_name_equal_file_name(_root_path):
     for sub_item in os.listdir(_root_path):
         sub_item_path = os.path.join(_root_path, sub_item)
         if os.path.isdir(sub_item_path) and '.' in sub_item:
-            if len(os.listdir(sub_item_path)) == 1 and os.listdir(sub_item_path)[0] == sub_item:
+            list_sub_item_content = os.listdir(sub_item_path)
+            if len(list_sub_item_content) == 1 and list_sub_item_content[0] == sub_item:
                 if os.path.isfile(os.path.join(sub_item_path, sub_item)):
                     list_folder_name_equal_file_name.append(sub_item)
     print(f'扫描到{len(list_folder_name_equal_file_name)}个文件夹名与内部文件名相同的文件夹{list_folder_name_equal_file_name}')

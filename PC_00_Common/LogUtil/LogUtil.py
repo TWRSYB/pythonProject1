@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 
 from PC_00_Common.LogUtil import LogUtil
 from PC_00_Common.Config.Config import DIR_LOG
@@ -27,6 +28,13 @@ LOG_PROCESS_1 = 0
 LOG_PROCESS_2 = 0
 LOG_PROCESS_3 = 0
 LOG_PROCESS_4 = 0
+
+
+class Level:
+    DEBUG = 'debug'
+    INFO = 'info'
+    WARNING = 'warning'
+    ERROR = 'error'
 
 
 def set_process(level: int, order: int):
@@ -227,22 +235,45 @@ class ProcessLog:
     def process5(self, msg):
         self.logger_process_5.info(msg)
 
-    def process_start(self, level: int, msg, order=None, obj=None):
+    def process_start(self, process_level: int, msg, order=None, obj=None, level: str = Level.INFO):
         msg = f'{msg} Start ↓↓↓↓↓'
-        self.process(level, msg, order, obj)
+        self.process(process_level, msg, order, obj, level)
 
-    def process_end(self, level: int, msg, order=None, obj=None):
+    def process_end(self, process_level: int, msg, order=None, obj=None, level: str = Level.INFO):
         msg = f'{msg} End ↑↑↑↑↑'
-        self.process(level, msg, order, obj)
+        self.process(process_level, msg, order, obj, level)
 
-    def process_skip(self, level: int, msg, order=None, obj=None):
+    def process_skip(self, process_level: int, msg, order=None, obj=None, level: str = Level.INFO):
         msg = f'跳过 {msg}'
-        self.process(level, msg, order, obj)
+        self.process(process_level, msg, order, obj, level)
 
-    def process(self, level: int, msg, order=None, obj=None):
+    def process(self, process_level: int, msg, order=None, obj=None, level: str = Level.INFO):
+        # 确保 process_level 是一个有效的索引
+        if not 0 < process_level <= len(self.list_logger):
+            raise IndexError(f"Invalid process_level: {process_level}")
+
         msg = f'{msg} 第 {order} 个' if order else msg
         msg = f'{msg} obj: {obj}' if obj else msg
-        self.list_logger[level - 1].info(msg)
+
+        # 使用字典映射来简化日志级别的处理
+        log_methods = {Level.DEBUG: 'debug', Level.WARNING: 'warning', Level.ERROR: 'error', Level.INFO: 'info'}
+        # 使用 get 方法，并指定默认值为 info 方法的名称
+        method_name = log_methods.get(level, log_methods[Level.INFO])
+        getattr(self.list_logger[process_level - 1], method_name)(msg)
+        # getattr(com_log, method_name)(msg)
+
+        # if level == Level.DEBUG:
+        #     self.list_logger[process_level - 1].debug(msg)
+        #     com_log.debug(msg)
+        # elif level == Level.WARNING:
+        #     self.list_logger[process_level - 1].warning(msg)
+        #     com_log.warning(msg)
+        # elif level == Level.ERROR:
+        #     self.list_logger[process_level - 1].error(msg)
+        #     com_log.error(msg)
+        # else:
+        #     self.list_logger[process_level - 1].info(msg)
+        #     com_log.info(msg)
 
 
 class AsyncLog:

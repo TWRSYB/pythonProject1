@@ -1,9 +1,6 @@
-import PC_05_91GCYY.Config
-from PC_05_91GCYY.Executor import Executor
-
+from PC_05_91GCYY import executor
 
 if __name__ == '__main__':
-    executor = Executor()
     executor.start()
 
 # 有反爬机制, 需要header

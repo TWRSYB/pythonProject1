@@ -10,9 +10,8 @@ from lxml import etree
 from openpyxl import load_workbook
 
 from PC_05_91GCYY.Config import URL_HOST, DIR_M3U8, DIR_IMG, FILE_JSON_CURRENT, FILE_JSON_ALL, FILE_EXCEL_CURRENT, \
-    FILE_EXCEL_ALL, DIR_OUTPUT, HEADERS, check_dir
+    FILE_EXCEL_ALL, DIR_OUTPUT, HEADERS
 
-check_dir()
 
 from PC_00_Common import LogUtil
 from PC_00_Common.Config.StartPoint import START_POINT_1, START_POINT_2, START_POINT_3
@@ -63,7 +62,6 @@ class ExecutorNoPage:
 
     def start(self):
 
-        check_dir()
         # 读取现有JSON文件中的数据
         if os.path.isfile(FILE_JSON_ALL):
             with open(FILE_JSON_ALL, 'r', encoding='utf-8') as json_file:
