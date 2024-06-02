@@ -1,3 +1,7 @@
-from PC_05_91GCYY.Vo.Category import Category
+import requests
+import certifi
 
-category_01 = Category('111', 'aaa', 'aaa')
+print(certifi.where())
+
+get = requests.get(url='https://lp3-cdn-tos.bytecdntd.com/awimg/uuv/3870.jpg')
+print(get)

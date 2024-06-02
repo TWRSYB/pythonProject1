@@ -9,6 +9,9 @@ import pandas
 import requests
 from lxml import etree
 
+from PC_05_91GCYY.Config import URL_HOST, DIR_M3U8, DIR_IMG, FILE_JSON_CURRENT, FILE_JSON_ALL, FILE_EXCEL_CURRENT, \
+    FILE_EXCEL_ALL, DIR_OUTPUT, HEADERS, FILE_JSON_ALL_CATEGORY, DIR_CATEGORY, FILE_JSON_CURRENT_CATEGORY, \
+    FILE_EXCEL_CURRENT_CATEGORY, FILE_EXCEL_ALL_CATEGORY
 from A_04_FileDeal.FileNameValidate import validate, correct_name
 from A_07_Utils.ExcelUtils import format_excel_text
 from PC_00_Common.LogUtil import LogUtil
@@ -16,9 +19,7 @@ from PC_00_Common.ReqUtil import SavePicUtil
 from PC_00_Common.XpathUtil.XpathUtil import xpath_util
 from PC_05_91GCYY import Config
 from PC_05_91GCYY.CheckComplite import Checker
-from PC_05_91GCYY.Config import URL_HOST, DIR_M3U8, DIR_IMG, FILE_JSON_CURRENT, FILE_JSON_ALL, FILE_EXCEL_CURRENT, \
-    FILE_EXCEL_ALL, DIR_OUTPUT, HEADERS, FILE_JSON_ALL_CATEGORY, DIR_CATEGORY, FILE_JSON_CURRENT_CATEGORY, \
-    FILE_EXCEL_CURRENT_CATEGORY, FILE_EXCEL_ALL_CATEGORY
+
 
 # 创建session对象
 from PC_00_Common.ReqUtil import ReqUtil
