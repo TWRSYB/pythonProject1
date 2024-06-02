@@ -44,6 +44,16 @@ def get_task_m3u8(task: Task, dir_m3u8):
         return
     with open(os.path.join(dir_m3u8, f'{task.get_name()}.m3u8'), 'wb') as m3u8_file:
         m3u8_file.write(res_get_m3u8.content)
+    dir_m3u8_ca49e0 = f'{dir_m3u8}_ca49e0'
+    os.makedirs(dir_m3u8_ca49e0, exist_ok=True)
+    if task.m3u8_url.endswith('4be0'):
+        res_get_m3u8_ca49e0 = req_util.try_get_req_times(f'{URL_HOST}{task.m3u8_url.replace("ca4be0", "ca49e0")}',
+                                                         msg=f'获取完整.m3u8文件')
+        if res_get_m3u8_ca49e0.status_code != 200:
+            return
+        with open(os.path.join(dir_m3u8_ca49e0, f'{task.get_name().replace("ca4be0", "ca49e0")}.m3u8'),
+                  'wb') as m3u8_file:
+            m3u8_file.write(res_get_m3u8_ca49e0.content)
 
 
 def save_data(list_vo, list_json_all: list, dir_output, json_current, json_all, excel_current, excel_all,
