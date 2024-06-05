@@ -25,11 +25,17 @@ import os
 # }
 # URL_HOST = 'https://g1hs.nestokra.com'
 
+# HEADERS = {
+#     'cookie': '_zhchat_chat_entIds=%5B%5D; _zhchat_chat_channelIds=%5B%7B%22customerId%22%3A%22661fcaeee3a0f40ae5581599%22%2C%22channelId%22%3A%22E6Z9dw%22%7D%5D; PHPSESSID=71285703d1d828367a90af7a12caeeec; isWelcomeTipsNoShow=1',
+#     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
+# }
+# URL_HOST = 'https://g1hs.nestokra.com'
 HEADERS = {
-    'cookie': '_zhchat_chat_entIds=%5B%5D; _zhchat_chat_channelIds=%5B%7B%22customerId%22%3A%22661fcaeee3a0f40ae5581599%22%2C%22channelId%22%3A%22E6Z9dw%22%7D%5D; PHPSESSID=71285703d1d828367a90af7a12caeeec; isWelcomeTipsNoShow=1',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
+    'cookie': 'PHPSESSID=943253905816fb8f3cefa8808d77feb2; isWelcomeTipsNoShow=1',
+    'referer': 'https://nqkh.judoegg.com/',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
 }
-URL_HOST = 'https://g1hs.nestokra.com'
+URL_HOST = 'https://nqkh.judoegg.com/'
 DIR_OUTPUT = os.path.join(os.getcwd(), 'OutputData')
 DIR_M3U8 = os.path.join(DIR_OUTPUT, 'M3U8')
 DIR_M3U8_ADD_KEYURI = os.path.join(DIR_OUTPUT, 'M3U8_ADD_KEYURI')

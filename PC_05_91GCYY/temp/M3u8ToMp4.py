@@ -3,6 +3,7 @@ import subprocess
 import requests
 from m3u8 import M3U8
 
+
 # def download_m3u8_and_key(key_url, output_folder):
 #     key_response = requests.get(key_url)
 #     with open(os.path.join(output_folder, 'key.bin'), 'wb') as f:
@@ -36,6 +37,7 @@ def download_ts_segments(m3u8_path, output_folder):
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
+
 
 def decrypt_and_merge_with_ffmpeg(ts_folder, key_path, iv=None, output_mp4='output.mp4'):
     """使用ffmpeg解密并合并.ts文件为MP4"""

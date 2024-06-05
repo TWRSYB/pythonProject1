@@ -154,9 +154,9 @@ class Checker:
                     LogUtil.process_log.process(process_level, msg=f'分类检查结果: 有重复不全', obj=check_result,
                                                 level=LogUtil.Level.ERROR)
             elif category.list_sub_category_code:
-                LogUtil.process_log.process(process_level, f"影片没有页数且有子分类", obj=category)
+                LogUtil.process_log.process(process_level, f"分类没有页数且有子分类", obj=category)
             else:
-                LogUtil.process_log.process(process_level, f"影片没有页数且没有子分类", obj=category, level=LogUtil.Level.ERROR)
+                LogUtil.process_log.process(process_level, f"分类没有页数且没有子分类", obj=category, level=LogUtil.Level.ERROR)
             list_check_result.append(check_result)
             LogUtil.process_log.process_end(process_level, msg='检查分类', order=order, obj=category)
         return list_check_result

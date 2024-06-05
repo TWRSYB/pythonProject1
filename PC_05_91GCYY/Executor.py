@@ -238,10 +238,12 @@ class Executor:
         else:
             list_page_bar_item = etree_res_category.xpath('//div[contains(@class,"pagebar")]/li/*/text()')
             page_count = 1
+            vip_type = xpath_util.get_unique(etree_res_category, xpath='//li[@class="mb15"]/a/*[@class="vip"]/text()', msg='获取 vip_type')
             if len(list_page_bar_item) > 0:
                 page_count = max(
                     [int(page_bar_item) for page_bar_item in list_page_bar_item if re.match(r'\d+', page_bar_item)])
             category.page_count = page_count
+            category.vip_type = vip_type
             category.list_sub_category_code = None
 
     def get_task(self):
