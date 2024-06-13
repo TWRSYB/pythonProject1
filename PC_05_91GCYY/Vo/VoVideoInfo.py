@@ -3,11 +3,11 @@ from PC_05_91GCYY.Config import URL_HOST
 from PC_05_91GCYY.Vo.ComVo import ComVo
 
 
-class Task(ComVo):
+class VoVideoInfo(ComVo):
 
-    def __init__(self, serno: str, href, title, category, data_ratio, img_src, vip_type, play_times, m3u8_url: str,
+    def __init__(self, video_id: str, href, title, category, data_ratio, img_src, vip_type, play_times, m3u8_url: str,
                  page_order: str):
-        self.serno = serno
+        self.video_id = video_id
         self.href = href
         self.title = title
         self.category = category
@@ -20,11 +20,11 @@ class Task(ComVo):
         self.page_order = page_order
 
     def get_name(self):
-        return correct_name(f'{self.serno}_-_{self.title}_-_{self.vip_type}_-_{self.m3u8_url.split(".m3u8?val=")[1]}',
+        return correct_name(f'{self.video_id}_-_{self.title}_-_{self.vip_type}_-_{self.m3u8_url.split(".m3u8?val=")[1]}',
                             can_restored=True)
 
     def in_dict_list(self, list_vo_dict):
-        if self.serno not in [vo_dict.get('serno') for vo_dict in list_vo_dict]:
+        if self.video_id not in [vo_dict.get('video_id') for vo_dict in list_vo_dict]:
             return False
         if self.title not in [vo_dict.get('title') for vo_dict in list_vo_dict]:
             return False
@@ -35,15 +35,3 @@ class Task(ComVo):
         if self.vip_type not in [vo_dict.get('vip_type') for vo_dict in list_vo_dict]:
             return False
         return True
-
-
-class ActressVo(ComVo):
-
-    def __init__(self, id_in_javbus, url_avatar, nm_cn, nm_jp='', nm_en="", nm_kr='', movie_num=''):
-        self.id_in_javbus = id_in_javbus
-        self.url_avatar = url_avatar
-        self.nm_cn = nm_cn
-        self.nm_jp: str = nm_jp
-        self.nm_en: str = nm_en
-        self.nm_kr: str = nm_kr
-        self.movie_num = movie_num

@@ -33,10 +33,10 @@ req_util = ReqUtil(session=session)
 
 class Task:
 
-    def __init__(self, serno: str, href, title, category, img_src, m3u8_url: str,
+    def __init__(self, video_id: str, href, title, category, img_src, m3u8_url: str,
                  vip_type: str = '', play_times: str = '', data_ratio: str = '', page_order: str = '') -> None:
         super().__init__()
-        self.serno = serno
+        self.video_id = video_id
         self.href = href
         self.title = title
         self.category = category
@@ -52,7 +52,7 @@ class Task:
         return json.dumps(self.__dict__, ensure_ascii=False)
 
     def get_name(self):
-        return f'{self.serno}_-_{self.title}_-_{self.vip_type}_-_{self.m3u8_url.split(".m3u8?val=")[1]}'
+        return f'{self.video_id}_-_{self.title}_-_{self.vip_type}_-_{self.m3u8_url.split(".m3u8?val=")[1]}'
 
 
 class ExecutorNoPage:
@@ -85,22 +85,22 @@ class ExecutorNoPage:
         self.get_task_resource()
 
     def read_category(self, category):
-        for serno in range(3038, 5407):
-            LogUtil.LogUtil.LOG_PROCESS_2 = serno
+        for video_id in range(3038, 5407):
+            LogUtil.LogUtil.LOG_PROCESS_2 = video_id
             LogUtil.LogUtil.LOG_PROCESS_3 = 0
             LogUtil.LogUtil.LOG_PROCESS_4 = 0
-            if serno < START_POINT_2:
-                process_log.process2(f"跳过 获取影片详情: serno={serno}")
+            if video_id < START_POINT_2:
+                process_log.process2(f"跳过 获取影片详情: video_id={video_id}")
                 continue
-            process_log.process2(f'获取影片详情 Start: serno={serno}')
-            self.get_video_detail(serno=f'{serno}', category=category, page_order=f'未经过page, 未获取')
-            process_log.process2(f'获取影片详情 End: serno={serno}')
+            process_log.process2(f'获取影片详情 Start: video_id={video_id}')
+            self.get_video_detail(video_id=f'{video_id}', category=category, page_order=f'未经过page, 未获取')
+            process_log.process2(f'获取影片详情 End: video_id={video_id}')
 
-    def get_video_detail(self, serno, category, page_order: str = ''):
-        href = f"/vid/{serno}.html"
+    def get_video_detail(self, video_id, category, page_order: str = ''):
+        href = f"/vid/{video_id}.html"
         res_video_page = req_util.try_get_req_times(f'{URL_HOST}{href}')
         if not res_video_page:
-            com_log.error(f'获取影片详情失败: serno={serno}')
+            com_log.error(f'获取影片详情失败: video_id={video_id}')
             return
         res_video_page_etree = etree.HTML(res_video_page.text)
         title = xpath_util.get_unique(res_video_page_etree, xpath='//div/h1[contains(@class, "mb10")]/text()',
@@ -112,10 +112,10 @@ class ExecutorNoPage:
         vip_type = '大会员'
         play_times = '未经过page, 未获取'
 
-        task = Task(serno=f'{serno}', href=href, title=title, category=category, data_ratio=data_ratio, img_src=img_src,
+        task = Task(video_id=f'{video_id}', href=href, title=title, category=category, data_ratio=data_ratio, img_src=img_src,
                     vip_type=vip_type, play_times=play_times, m3u8_url=m3u8_url,
                     page_order=page_order)
-        com_log.info(f'获取影片详情成功: serno={serno}, task={task}')
+        com_log.info(f'获取影片详情成功: video_id={video_id}, task={task}')
         self.task_list.append(task)
         return task
 

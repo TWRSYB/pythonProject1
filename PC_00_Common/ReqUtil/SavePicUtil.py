@@ -36,16 +36,16 @@ class SavePicUtil:
 
         res = self.try_get_pic_times(url=url, msg=msg, log=log)
 
-        # 图片获取失败, 尝试别的一些办法
-        if not res:
-            # 尝试替换https为http
-            if url.startswith('https:'):
-                test_url = url.replace('https:', 'http:')
-                log.error(f"图片请求失败, 尝试https-->http重试 url: {url}"
-                          f"\n\ttest_url: {test_url}")
-                res = self.try_get_pic_times(url=test_url, msg=msg, log=log)
-                if res:
-                    log.error(f"图片使用http请求成功: test_url: {test_url}")
+        # # 图片获取失败, 尝试别的一些办法
+        # if not res:
+        #     # 尝试替换https为http
+        #     if url.startswith('https:'):
+        #         test_url = url.replace('https:', 'http:')
+        #         log.error(f"图片请求失败, 尝试https-->http重试 url: {url}"
+        #                   f"\n\ttest_url: {test_url}")
+        #         res = self.try_get_pic_times(url=test_url, msg=msg, log=log)
+        #         if res:
+        #             log.error(f"图片使用http请求成功: test_url: {test_url}")
 
         if res:
             try:

@@ -17,30 +17,30 @@ json3 = r'D:\15.Development Projects\06.pachon\pythonProject1\PC_05_91GCYY\Outpu
 
 with open(json1, 'r', encoding='utf-8') as json_file:
     json_list_1 = json.load(json_file)
-list_serno_1 = [item.get('serno') for item in json_list_1]
-duplicates_1 = find_duplicates(list_serno_1)
+list_video_id_1 = [item.get('video_id') for item in json_list_1]
+duplicates_1 = find_duplicates(list_video_id_1)
 list_lost_1 = []
 for i in range(3038, 5407):
-    if f'{i}' not in list_serno_1:
+    if f'{i}' not in list_video_id_1:
         list_lost_1.append(i)
 
 with open(json2, 'r', encoding='utf-8') as json_file:
     json_list_2 = json.load(json_file)
-list_serno_2 = [item.get('serno') for item in json_list_2]
-duplicates_2 = find_duplicates(list_serno_2)
+list_video_id_2 = [item.get('video_id') for item in json_list_2]
+duplicates_2 = find_duplicates(list_video_id_2)
 list_lost_2 = []
 for i in range(3038, 5407):
-    if f'{i}' not in list_serno_2:
+    if f'{i}' not in list_video_id_2:
         list_lost_2.append(i)
 
 
 with open(json3, 'r', encoding='utf-8') as json_file:
     json_list_3 = json.load(json_file)
-list_serno_3 = [item.get('serno') for item in json_list_3]
-duplicates_3 = find_duplicates(list_serno_3)
+list_video_id_3 = [item.get('video_id') for item in json_list_3]
+duplicates_3 = find_duplicates(list_video_id_3)
 list_lost_3 = []
 for i in range(3038, 5407):
-    if f'{i}' not in list_serno_3:
+    if f'{i}' not in list_video_id_3:
         list_lost_3.append(i)
 
 # 计算交集
@@ -49,7 +49,7 @@ intersection_lost = set(list_lost_1).intersection(set(list_lost_2)).intersection
 
 
 # 计算并集
-union = set(list_serno_1).union(set(list_serno_2)).union(set(list_serno_3))
+union = set(list_video_id_1).union(set(list_video_id_2)).union(set(list_video_id_3))
 
 print(f'json1读取数量{len(json_list_1)}')
 print(f'json2读取数量{len(json_list_2)}')

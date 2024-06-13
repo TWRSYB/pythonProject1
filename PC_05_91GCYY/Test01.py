@@ -4,7 +4,7 @@ import requests
 import certifi
 
 from PC_05_91GCYY.Config import HEADERS
-from PC_05_91GCYY.Executor import Task
+from PC_05_91GCYY.Executor import VoVideoInfo
 
 headers = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -28,7 +28,7 @@ print(certifi.where())
 # print(r.content)
 # print(r.text)
 
-cls = Task
+cls = VoVideoInfo
 
 init_attribute_list = [key for key, value in inspect.signature(cls).parameters.items() if key != 'self']
 # out_attribute_list = [attr for attr in dir(cls) if
