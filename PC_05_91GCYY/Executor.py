@@ -382,28 +382,25 @@ class Executor:
             LogUtil.process_log.process_end(process_level, f"读取页", order=page, obj=list_page_task)
         # 分页获取 ↑↑↑
         # 检查缺失情况 ↓↓↓
-        if LogUtil.set_process(process_level, 3):
-            LogUtil.process_log.process_skip(process_level, '检查缺失情况')
-        else:
-            LogUtil.process_log.process_start(process_level, '检查缺失情况', obj=category)
-            check_result = check_category(category=category, list_task_category=list_task_category,
-                                          process_level=process_level + 1)
+        LogUtil.process_log.process_start(process_level, '检查缺失情况', obj=category)
+        check_result = check_category(category=category, list_task_category=list_task_category,
+                                      process_level=process_level + 1)
 
-            if check_result:
-                if check_result.is_no_duplicate and check_result.is_file_complete:
-                    LogUtil.process_log.process(process_level, msg=f'分类检查结果: 完全正常', obj=check_result)
-                else:
-                    if not check_result.is_file_complete:
-                        LogUtil.process_log.process(process_level, msg=f'分类检查结果: 资源不全', obj=check_result,
-                                                    level=LogUtil.Level.ERROR)
-                    if not check_result.is_no_duplicate:
-                        LogUtil.process_log.process(process_level, msg=f'分类检查结果: 有重复不全', obj=check_result,
-                                                    level=LogUtil.Level.ERROR)
-                        LogUtil.process_log.process_start(process_level, msg='补全数据')
-                        self.complete_data(check_result, list_task=list_task_category, process_level=process_level + 1)
-                        LogUtil.process_log.process_end(process_level, msg='补全数据')
+        if check_result:
+            if check_result.is_no_duplicate and check_result.is_file_complete:
+                LogUtil.process_log.process(process_level, msg=f'分类检查结果: 完全正常', obj=check_result)
+            else:
+                if not check_result.is_file_complete:
+                    LogUtil.process_log.process(process_level, msg=f'分类检查结果: 资源不全', obj=check_result,
+                                                level=LogUtil.Level.ERROR)
+                if not check_result.is_no_duplicate:
+                    LogUtil.process_log.process(process_level, msg=f'分类检查结果: 有重复不全', obj=check_result,
+                                                level=LogUtil.Level.ERROR)
+                    LogUtil.process_log.process_start(process_level, msg='补全数据')
+                    self.complete_data(check_result, list_task=list_task_category, process_level=process_level + 1)
+                    LogUtil.process_log.process_end(process_level, msg='补全数据')
 
-            LogUtil.process_log.process_end(process_level, '检查缺失情况', obj=check_result)
+        LogUtil.process_log.process_end(process_level, '检查缺失情况', obj=check_result)
         # 检查缺失情况 ↑↑↑
         return list_task_category
 

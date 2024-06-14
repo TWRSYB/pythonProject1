@@ -1,6 +1,5 @@
 from PC_05_91GCYY import executor
-import certifi
-print(certifi.where())
+
 if __name__ == '__main__':
     executor.start()
 
