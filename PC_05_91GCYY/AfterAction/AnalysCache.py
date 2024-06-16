@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 
-DIR_OUTPUT = os.path.join(os.getcwd(), '../OutputData_main_canQueDe')
+DIR_OUTPUT = os.path.join(os.getcwd(), '../OutputData_main_A')
 
 
 for cache_name in os.listdir(DIR_OUTPUT):

@@ -1,9 +1,12 @@
 import logging
+import os
 from enum import Enum
 
 from PC_00_Common.LogUtil import LogUtil
 from PC_00_Common.Config.Config import DIR_LOG
 from PC_00_Common.Config import StartPoint
+
+os.makedirs(DIR_LOG, exist_ok=True)
 
 LOG_PATH_GLOBAL = f'{DIR_LOG}/Global_log.log'
 
@@ -220,20 +223,20 @@ class ProcessLog:
 
     list_logger = [logger_process_1, logger_process_2, logger_process_3, logger_process_4, logger_process_5]
 
-    def process1(self, msg):
-        self.logger_process_1.info(msg)
-
-    def process2(self, msg):
-        self.logger_process_2.info(msg)
-
-    def process3(self, msg):
-        self.logger_process_3.info(msg)
-
-    def process4(self, msg):
-        self.logger_process_4.info(msg)
-
-    def process5(self, msg):
-        self.logger_process_5.info(msg)
+    # def process1(self, msg):
+    #     self.logger_process_1.info(msg)
+    #
+    # def process2(self, msg):
+    #     self.logger_process_2.info(msg)
+    #
+    # def process3(self, msg):
+    #     self.logger_process_3.info(msg)
+    #
+    # def process4(self, msg):
+    #     self.logger_process_4.info(msg)
+    #
+    # def process5(self, msg):
+    #     self.logger_process_5.info(msg)
 
     def process_start(self, process_level: int, msg, order=None, obj=None, level: str = Level.INFO):
         msg = f'{msg} Start ↓↓↓↓↓'

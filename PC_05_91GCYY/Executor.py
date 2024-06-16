@@ -50,7 +50,7 @@ def get_task_m3u8(task: VoVideoInfo, dir_m3u8):
     :return: None
     """
     res_get_m3u8 = req_util.try_get_req_times(f'{URL_HOST}{task.m3u8_url}', msg=f'获取.m3u8文件')
-    if res_get_m3u8.status_code != 200:
+    if not res_get_m3u8:
         return
     with open(os.path.join(dir_m3u8, f'{task.get_name()}.m3u8'), 'w', encoding='utf-8') as m3u8_file:
         m3u8_file.write(add_key_uri_for_m3u8_content(res_get_m3u8.text))
@@ -60,7 +60,7 @@ def get_task_m3u8(task: VoVideoInfo, dir_m3u8):
         os.makedirs(dir_m3u8_ca49e0, exist_ok=True)
         res_get_m3u8_ca49e0 = req_util.try_get_req_times(f'{URL_HOST}{task.m3u8_url.replace("ca4be0", "ca49e0")}',
                                                          msg=f'获取完整.m3u8文件')
-        if res_get_m3u8_ca49e0.status_code != 200:
+        if not res_get_m3u8_ca49e0:
             return
         with open(os.path.join(dir_m3u8_ca49e0, f'{task.get_name().replace("ca4be0", "ca49e0")}.m3u8'),
                   'w', encoding='utf-8') as m3u8_file:
@@ -408,7 +408,7 @@ class Executor:
         dir_save, dir_m3u8, dir_img = get_save_path_by_category_code(category_code)
         list_page_task = []
         res_page = req_util.try_get_req_times(url=f'{URL_HOST}/category/{category_code}', params={'page': page})
-        if res_page.status_code != 200:
+        if not res_page:
             return
         res_page_etree = etree.HTML(res_page.text)  # 初始化生成一个XPath解析对象
 
