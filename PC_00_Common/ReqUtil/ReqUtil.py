@@ -16,11 +16,11 @@ class ReqUtil:
             self.session.mount('https://', requests.adapters.HTTPAdapter(pool_connections=10, pool_maxsize=50))
         self.test_times = test_times
 
-    def try_get_req_times(self, url, params=None, stream=False, msg="", log=com_log):
+    def try_get_req_times(self, url, params=None, stream=False, msg="", timeout=180, log=com_log):
         for i in range(self.test_times):
             res = None
             try:
-                res = self.session.get(url=url, params=params, stream=stream)
+                res = self.session.get(url=url, params=params, timeout=timeout, stream=stream)
                 if res.status_code == 200:
                     log.info(
                         f"get请求成功: {msg}, url: {url}, params: {params} {f'code: {res.status_code}' if res else ''}")

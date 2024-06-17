@@ -37,14 +37,14 @@ for cache_name in os.listdir(DIR_OUTPUT):
             m3u8_to_mp4 = M3u8ToMp4()
 
             # 使用ThreadPoolExecutor来并行处理M3u8文件
-            with ThreadPoolExecutor(max_workers=10) as executor:  # 可根据实际情况调整max_workers的数量
+            with ThreadPoolExecutor(max_workers=3) as executor:  # 可根据实际情况调整max_workers的数量
                 futures = {executor.submit(m3u8_to_mp4.download_and_merge_by_m3u8_file, m3u8_file, async_log) for m3u8_file in
                            m3u8_files_without_mp4}
                 # 收集所有完成的Future对象的结果（可选，根据需要处理结果或异常）
                 for future in concurrent.futures.as_completed(futures):
                     try:
                         result = future.result()
-                        com_log.info(f'Task completed with result: {result}')
+                        com_log.info(f'载并合并完成, 执行结果: {result}')
                     except Exception as exc:
-                        com_log.error(f'Task generated an exception: {exc}')
+                        com_log.error(f'下载并合并遇到异常, 异常: {exc}')
 
