@@ -71,7 +71,7 @@ class M3u8ToMp4:
             for idx, url_ts in enumerate(list_ts_url):
                 ts_output_path = os.path.join(path_m3u8_cache, f'decrypted_ts_{str(idx).zfill(6)}.ts')
                 list_decrypted_ts_path.append(ts_output_path)
-                futures.append(executor.submit(self.__download_and_decrypt_ts, url_ts, key, ts_output_path))
+                futures.append(executor.submit(self.__download_and_decrypt_ts, url_ts, key, ts_output_path, None))
 
             # 等待所有下载和解密任务完成
             for future in concurrent.futures.as_completed(futures):
@@ -163,7 +163,7 @@ def main1():
 
     # 使用ThreadPoolExecutor来并行处理M3u8文件
     with ThreadPoolExecutor(max_workers=10) as executor:  # 可根据实际情况调整max_workers的数量
-        futures = {executor.submit(m3u8_to_mp4.download_and_merge_by_m3u8_file, m3u8_file) for m3u8_file in m3u8_files}
+        futures = {executor.submit(m3u8_to_mp4.download_and_merge_by_m3u8_file, m3u8_file, com_log) for m3u8_file in m3u8_files}
 
         # 收集所有完成的Future对象的结果（可选，根据需要处理结果或异常）
         for future in concurrent.futures.as_completed(futures):
