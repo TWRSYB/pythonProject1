@@ -7,7 +7,7 @@ DIR_OUTPUT = os.path.join(os.getcwd(), '../OutputData_main_A')
 
 for cache_name in os.listdir(DIR_OUTPUT):
     path_item = os.path.join(DIR_OUTPUT, cache_name)
-    if os.path.isdir(path_item) and re.match(r'[\d]+', cache_name):
+    if os.path.isdir(path_item) and re.match(r'\d+', cache_name):
         dir_m3u8 = os.path.join(path_item, 'M3U8_ca49e0_ADD_KEY_URI')
         m3u8_files_without_mp4 = []
         m3u8_files_with_mp4 = []

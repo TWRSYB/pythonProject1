@@ -75,12 +75,10 @@ class M3u8ToMp4:
 
             # 等待所有下载和解密任务完成
             for future in concurrent.futures.as_completed(list_futures):
-                print(future.result(), future.__dict__)
                 if not future.result():
                     log.error(f'下载 ts 失败: {path_m3u8_file}')
                     return
 
-        # print(list_ts_url)
         # list_decrypted_ts_path = []
         # for idx, url_ts in enumerate(list_ts_url):
         #     ts_output_path = os.path.join(path_m3u8_cache, f'decrypted_ts_{str(idx).zfill(6)}.ts')
