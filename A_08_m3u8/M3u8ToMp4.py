@@ -31,7 +31,7 @@ class M3u8ToMp4:
     # def download_and_merge_by_m3u8_url(self, url_m3u8):
     #     m3u8_content = session.get(url_m3u8).text
 
-    def download_and_merge_by_m3u8_file(self, path_m3u8_file, log=com_log):
+    def download_and_merge_by_m3u8_file(self, path_m3u8_file, log=com_log) -> (bool, str):
         # 获取 m3u8 的目录和文件名
         dir_m3u8, m3u8_file_name = os.path.split(path_m3u8_file)
         # 获取 m3u8 文件名
@@ -54,7 +54,7 @@ class M3u8ToMp4:
             res_get_key = self.req_util.try_get_req_times(url_key, msg=f'获取key')
             if not res_get_key:
                 log.error(f'获取key 失败: {path_m3u8_file}')
-                return
+                return False, f'获取key 失败: {path_m3u8_file}'
             with open(path_key, 'wb') as f:
                 f.write(res_get_key.content)
             with open(path_key, 'rb') as file_key:
@@ -71,13 +71,15 @@ class M3u8ToMp4:
             for idx, url_ts in enumerate(list_ts_url):
                 ts_output_path = os.path.join(path_m3u8_cache, f'decrypted_ts_{str(idx).zfill(6)}.ts')
                 list_decrypted_ts_path.append(ts_output_path)
+                log.info(f'添加 ts 下载任务 第 {idx + 1} 个 for {path_m3u8_file}')
                 list_futures.append(executor.submit(self.__download_and_decrypt_ts, url_ts, key, ts_output_path, None))
 
             # 等待所有下载和解密任务完成
             for future in concurrent.futures.as_completed(list_futures):
-                if not future.result():
-                    log.error(f'下载 ts 失败: {path_m3u8_file}')
-                    return
+                log.info(f'得到 ts 下载任务结果 {future.result()} for {path_m3u8_file}')
+                if not future.result()[0]:
+                    log.error(f'下载 ts 失败: {future.result()}')
+                    return False, f'下载 ts 失败: {path_m3u8_file}'
 
         # list_decrypted_ts_path = []
         # for idx, url_ts in enumerate(list_ts_url):
@@ -101,10 +103,10 @@ class M3u8ToMp4:
                                     f'{m3u8_file_base_name}_EXIST_{datetime.now().strftime("%Y%m%d_%H%M%S")}.mp4')
         self.__merge_decrypted_ts_to_mp4(txt_list_ts, path_mp4, log=log)
         log.info(f'合并为 mp4 end: {path_m3u8_file}')
-        return True
+        return True, f'合并为 mp4 完成: {path_m3u8_file}'
         # 合并为 mp4 ↑↑↑
 
-    def __download_and_decrypt_ts(self, url_ts, key, output_path, iv=None) -> bool:
+    def __download_and_decrypt_ts(self, url_ts, key, output_path, iv=None) -> (bool, str):
         """
         下载并解密 ts 文件
         :param url_ts: url
@@ -115,8 +117,9 @@ class M3u8ToMp4:
         """
         res_get_ts = self.req_util.try_get_req_times(url_ts, stream=True, msg=f'下载 ts文件')
         if not res_get_ts:
-            return False
+            return False, output_path
         # 读取加密的数据
+        print(res_get_ts.status_code, res_get_ts)
         encrypted_data = res_get_ts.raw.read()
         # 初始化AES解密器
         cipher = AES.new(key, AES.MODE_CBC)
@@ -125,7 +128,7 @@ class M3u8ToMp4:
         # 写入到输出目录
         with open(output_path, 'wb') as f:
             f.write(decrypted_data)
-        return True
+        return True, output_path
 
     # def __merge_decrypted_ts_to_mp4(self, list_ts_file_path, output_filename):
     #     """使用ffmpeg将解密后的TS文件合并为MP4"""
@@ -161,7 +164,8 @@ def main1():
 
     # 使用ThreadPoolExecutor来并行处理M3u8文件
     with ThreadPoolExecutor(max_workers=10) as executor:  # 可根据实际情况调整max_workers的数量
-        futures = {executor.submit(m3u8_to_mp4.download_and_merge_by_m3u8_file, m3u8_file, com_log) for m3u8_file in m3u8_files}
+        futures = {executor.submit(m3u8_to_mp4.download_and_merge_by_m3u8_file, m3u8_file, com_log) for m3u8_file in
+                   m3u8_files}
 
         # 收集所有完成的Future对象的结果（可选，根据需要处理结果或异常）
         for future in concurrent.futures.as_completed(futures):

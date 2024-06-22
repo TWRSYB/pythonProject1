@@ -16,10 +16,12 @@ def download_and_merge_mp4(dir_output_data, process_level: int = 2):
             list_cache.append(item)
     for index, cache_name in enumerate(list_cache):
         order = index + 1
-        LogUtil.set_process(process_level, order)
-        LogUtil.process_log.process_start(process_level, order=order, msg='扫描缓存', obj=cache_name)
+        if LogUtil.set_process(process_level, order):
+            LogUtil.process_log.process_skip(process_level, msg='扫描缓存', order=order, obj=cache_name)
+            continue
+        LogUtil.process_log.process_start(process_level, msg='扫描缓存', order=order, obj=cache_name)
         analyse_cache_and_download(os.path.join(dir_output_data, cache_name, 'M3U8_ca49e0_ADD_KEY_URI'), cache_name, process_level + 1)
-        LogUtil.process_log.process_end(process_level, order=order, msg='扫描缓存', obj=cache_name)
+        LogUtil.process_log.process_end(process_level, msg='扫描缓存', order=order, obj=cache_name)
 
 
 def analyse_cache_and_download(dir_m3u8, cache_name, process_level):
@@ -49,15 +51,17 @@ def analyse_cache_and_download(dir_m3u8, cache_name, process_level):
             set_future = set()
             with ThreadPoolExecutor(max_workers=3) as executor:  # 可根据实际情况调整max_workers的数量
                 for i, m3u8_file in enumerate(m3u8_files_without_mp4):
-                    LogUtil.process_log.process(process_level + 1, msg='开始下载并合并m3u8', order=i + 1,
-                                                obj=m3u8_file)
                     future = executor.submit(m3u8_to_mp4.download_and_merge_by_m3u8_file, m3u8_file, async_log)
                     set_future.add(future)
             # 收集所有完成的Future对象的结果（可选，根据需要处理结果或异常）
             for future in concurrent.futures.as_completed(set_future):
+                LogUtil.process_log.process(process_level+1, f'得到 下载并合并 结果 {future.result()}')
                 try:
                     result = future.result()
-                    com_log.info(f'下载并合并完成, 执行结果: {result}')
+                    if result[0]:
+                        com_log.info(f'下载并合并完成, 执行结果: {result}')
+                    else:
+                        com_log.error(f'下载并合并 失败: {future.result()}')
                 except Exception as exc:
                     com_log.error(f'下载并合并遇到异常, 异常: {exc}')
     else:
