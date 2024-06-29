@@ -1,7 +1,9 @@
+import concurrent
 import json
 import os
 import re
 import shutil
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 
@@ -9,6 +11,8 @@ import pandas
 import requests
 from lxml import etree
 
+from A_08_m3u8.M3u8ToMp4 import M3u8ToMp4
+from PC_00_Common.LogUtil.LogUtil import async_log
 from PC_05_91GCYY.Config import URL_HOST, FILE_JSON_CURRENT, FILE_JSON_ALL, FILE_EXCEL_CURRENT, \
     FILE_EXCEL_ALL, DIR_OUTPUT, HEADERS, FILE_JSON_ALL_CATEGORY, DIR_CATEGORY, FILE_JSON_CURRENT_CATEGORY, \
     FILE_EXCEL_CURRENT_CATEGORY, FILE_EXCEL_ALL_CATEGORY
@@ -257,14 +261,13 @@ class Executor:
             LogUtil.process_log.process_start(process_level, '获取影片')
             self.get_task()
             LogUtil.process_log.process_end(process_level, '获取影片')
-        # # 检查缺失情况
-        # if LogUtil.set_process(process_level, 3):
-        #     LogUtil.process_log.process_skip(process_level, '检查缺失情况')
-        # else:
-        #     LogUtil.process_log.process_start(process_level, '检查缺失情况')
-        #     checker = Checker()
-        #     checker.start(process_level=process_level + 1)
-        #     LogUtil.process_log.process_end(process_level, '检查缺失情况')
+        # 下载并合并为 mp4
+        if LogUtil.set_process(process_level, 3):
+            LogUtil.process_log.process_skip(process_level, '下载并合并为 mp4')
+        else:
+            LogUtil.process_log.process_start(process_level, '下载并合并为 mp4')
+            self.download_and_merge_mp4()
+            LogUtil.process_log.process_end(process_level, '下载并合并为 mp4')
 
     def get_category(self, process_level=2):
         """
@@ -496,3 +499,55 @@ class Executor:
                                             msg=f'分类 {check_result.category} 缺失 {count_diff} 个, 补全 {len(list_task)} 个, 补全列表: {list_task}')
         else:
             LogUtil.process_log.process(process_level, msg='分类没有重复, 无需补全', obj=check_result)
+
+    def download_and_merge_mp4(self, process_level=2):
+        for index, category_json in enumerate(self.list_category_json_all):
+            order = index + 1
+            if LogUtil.set_process(process_level, order):
+                LogUtil.process_log.process_skip(process_level, f"下载并合并分类的影片", order=order, obj=category_json)
+                continue
+            LogUtil.process_log.process_start(process_level, f"下载并合并分类的影片", order=order, obj=category_json)
+            category = Category(**category_json)
+            dir_m3u8 = os.path.join(DIR_OUTPUT, category.category_code, 'M3U8_ca49e0_ADD_KEY_URI')
+            if os.path.isdir(dir_m3u8):
+                LogUtil.process_log.process(process_level, '分类有m3u8文件夹', obj=category.category_code)
+                m3u8_files_without_mp4 = []
+                m3u8_files_with_mp4 = []
+                Path_m3u8 = Path(dir_m3u8)
+                # 获取指定目录下所有的 .m3u8 文件
+                m3u8_files = [m3u8_file for m3u8_file in Path_m3u8.glob('*.m3u8')]
+                # 获取指定目录下所有的 .mp4 文件
+                list_mp4_name = [mp4_file.stem for mp4_file in Path_m3u8.glob('*.mp4')]
+
+                for m3u8_file in m3u8_files:
+                    if m3u8_file.stem in list_mp4_name:
+                        m3u8_files_with_mp4.append(m3u8_file)
+                    else:
+                        m3u8_files_without_mp4.append(m3u8_file)
+                LogUtil.process_log.process(process_level,
+                                            f'分类{category.category_code}扫描结果: m3u8数量={len(m3u8_files)}, mp4数量={len(list_mp4_name)}'
+                                            f', 有mp4的m3u8数量={len(m3u8_files_with_mp4)}, 没有mp4的m3u8数量={len(m3u8_files_without_mp4)}')
+                if len(m3u8_files_without_mp4) > 0:
+                    # 使用ThreadPoolExecutor来并行处理M3u8文件
+                    set_future = set()
+                    with ThreadPoolExecutor(max_workers=3) as executor:  # 可根据实际情况调整max_workers的数量
+                        for i, m3u8_file in enumerate(m3u8_files_without_mp4):
+                            m3u8_to_mp4 = M3u8ToMp4(path_m3u8_file=m3u8_file,
+                                                    dir_cache=os.path.join(os.getcwd(), 'OutputData', category.category_code),
+                                                    log=async_log)
+                            future = executor.submit(m3u8_to_mp4.download_and_merge_by_m3u8_file)
+                            set_future.add(future)
+                    # 收集所有完成的Future对象的结果（可选，根据需要处理结果或异常）
+                    for future in concurrent.futures.as_completed(set_future):
+                        LogUtil.process_log.process(process_level + 1, f'得到 下载并合并 结果 {future.result()}')
+                        try:
+                            result = future.result()
+                            if result[0]:
+                                LogUtil.process_log.process(process_level, f'下载并合并完成, 执行结果: {result}')
+                            else:
+                                LogUtil.process_log.process(process_level, f'下载并合并 失败: {future.result()}', level=LogUtil.Level.ERROR)
+                        except Exception as exc:
+                            LogUtil.process_log.process(process_level, f'下载并合并遇到异常, 异常: {exc}', level=LogUtil.Level.ERROR)
+            else:
+                LogUtil.process_log.process(process_level, f'分类{category.category_code}没有m3u8文件夹')
+            LogUtil.process_log.process_end(process_level, f"下载并合并分类的影片", order=order, obj=category)
