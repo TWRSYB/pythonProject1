@@ -65,7 +65,7 @@ class SavePicUtil:
         for i in range(self.test_times):
             res = None
             try:
-                res = self.session.get(url=url, params=params)
+                res = self.session.get(url=url, params=params, timeout=60)
                 if res.status_code == 200:
                     log.info(f"get图片成功: {msg}, url: {url}, params: {params}")
                     return res
