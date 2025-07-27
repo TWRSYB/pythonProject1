@@ -31,10 +31,13 @@ etree_html = etree.HTML(res_main.text)
 title = etree_html.xpath('//header[contains(@class,"entry-header")]/h1[contains(@class,"entry-title")]/text()')[0]
 max_page = 200
 page_bar_list = etree_html.xpath('//div[contains(@class,"entry-content")]//div[contains(@class,"pgntn-page-pagination-block")]/a/text()')
-try:
-    max_page=int(page_bar_list[-1])
-except ValueError:
-    max_page = int(page_bar_list[-2])
+if len(page_bar_list) == 0:
+    max_page = 1
+else:
+    try:
+        max_page=int(page_bar_list[-1])
+    except ValueError:
+        max_page = int(page_bar_list[-2])
 chars_cant_in_filename = r'[\\/:"*?<>|]+'
 title = re.sub(chars_cant_in_filename, '_', title)
 path_output = f'./OutputData/{title}'
